@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<head>
+	<link rel="stylesheet" href="style.css" />
+	<script src="elm.min.js"></script>
+</head>
+<body>
+	<script>
+	var storedState = localStorage.getItem('pomodoro');
+	var startingState = storedState ? JSON.parse(storedState) : null;
+
+	var app = Elm.fullscreen(Elm.Pomodoro, {getStorage: startingState});
+
+	app.ports.setStorage.subscribe(function(state) {
+		localStorage.setItem('pomodoro', JSON.stringify(state));
+	});
+
+	var ringer = new Audio();
+	ringer.src = 'chime.ogg';
+	ringer.preload = 'auto';
+	ringer.loop = true;
+	var lastState = false;
+	app.ports.setRinging.subscribe(function(state) {
+		if(state === lastState) return;
+		lastState = state;
+		if(state) {
+			ringer.currentTime = 0;
+			ringer.play();
+		} else {
+			ringer.pause();
+		}
+	});
+	</script>
+</body>
